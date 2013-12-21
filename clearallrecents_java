@@ -1,0 +1,1030 @@
+ core/java/android/provider/Settings.java
+	
+
+@@ -3150,6 +3150,13 @@ public static void setShowGTalkServiceStatusForUser(ContentResolver cr, boolean
+
+3150 	3150 	
+
+         public static final String POWER_MENU_PROFILES_ENABLED = "power_menu_profiles_enabled";
+
+3151 	3151 	
+
+ 
+
+3152 	3152 	
+
+         /**
+
+  	3153 	
+
++         * Clear Recents button
+
+  	3154 	
+
++         * 0 - off, 1 - top left, 2 - top right, 3 - bottom left, 4 - bottom right
+
+  	3155 	
+
++         * @hide
+
+  	3156 	
+
++         */
+
+  	3157 	
+
++        public static final String CLEAR_RECENTS_BUTTON = "clear_recents_button";
+
+  	3158 	
+
++
+
+  	3159 	
+
++        /**
+
+3153 	3160 	
+
+          * Enable Stylus Gestures
+
+3154 	3161 	
+
+          *
+
+3155 	3162 	
+
+          * @hide
+
+	
+12  packages/SystemUI/res/layout-land/status_bar_recent_panel.xml
+	
+
+@@ -34,7 +34,8 @@
+
+34 	34 	
+
+         android:layout_height="match_parent"
+
+35 	35 	
+
+         android:layout_alignParentBottom="true"
+
+36 	36 	
+
+         android:clipToPadding="false"
+
+37 	  	
+
+-        android:clipChildren="false">
+
+  	37 	
+
++        android:clipChildren="false"
+
+  	38 	
+
++        android:fitsSystemWindows="true">
+
+38 	39 	
+
+ 
+
+39 	40 	
+
+         <com.android.systemui.recent.RecentsHorizontalScrollView android:id="@+id/recents_container"
+
+40 	41 	
+
+             android:layout_width="wrap_content"
+
+	
+
+@@ -55,6 +56,15 @@
+
+55 	56 	
+
+ 
+
+56 	57 	
+
+         </com.android.systemui.recent.RecentsHorizontalScrollView>
+
+57 	58 	
+
+ 
+
+  	59 	
+
++        <ImageView
+
+  	60 	
+
++            android:id="@+id/recents_clear"
+
+  	61 	
+
++            android:clickable="true"
+
+  	62 	
+
++            android:layout_width="50dp"
+
+  	63 	
+
++            android:layout_height="50dp"
+
+  	64 	
+
++            android:scaleType="center"
+
+  	65 	
+
++            android:layout_gravity="bottom|right"
+
+  	66 	
+
++            android:src="@drawable/ic_notify_clear" />
+
+  	67 	
+
++
+
+58 	68 	
+
+     </FrameLayout>
+
+59 	69 	
+
+ 
+
+60 	70 	
+
+     <include layout="@layout/status_bar_no_recent_apps"
+
+	
+12  packages/SystemUI/res/layout/status_bar_recent_panel.xml
+	
+
+@@ -32,7 +32,8 @@
+
+32 	32 	
+
+         android:background="@drawable/status_bar_recents_background"
+
+33 	33 	
+
+         android:layout_width="match_parent"
+
+34 	34 	
+
+         android:layout_height="match_parent"
+
+35 	  	
+
+-        android:layout_alignParentBottom="true">
+
+  	35 	
+
++        android:layout_alignParentBottom="true"
+
+  	36 	
+
++        android:fitsSystemWindows="true">
+
+36 	37 	
+
+ 
+
+37 	38 	
+
+         <com.android.systemui.recent.RecentsVerticalScrollView
+
+38 	39 	
+
+             android:id="@+id/recents_container"
+
+	
+
+@@ -59,6 +60,15 @@
+
+59 	60 	
+
+ 
+
+60 	61 	
+
+         </com.android.systemui.recent.RecentsVerticalScrollView>
+
+61 	62 	
+
+ 
+
+  	63 	
+
++        <ImageView
+
+  	64 	
+
++            android:id="@+id/recents_clear"
+
+  	65 	
+
++            android:clickable="true"
+
+  	66 	
+
++            android:layout_width="50dp"
+
+  	67 	
+
++            android:layout_height="50dp"
+
+  	68 	
+
++            android:scaleType="center"
+
+  	69 	
+
++            android:layout_gravity="bottom|right"
+
+  	70 	
+
++            android:src="@drawable/ic_notify_clear" />
+
+  	71 	
+
++
+
+62 	72 	
+
+     </FrameLayout>
+
+63 	73 	
+
+ 
+
+64 	74 	
+
+     <include layout="@layout/status_bar_no_recent_apps"
+
+	
+6  packages/SystemUI/src/com/android/systemui/recent/Constants.java
+... 	... 	
+
+@@ -1,3 +1,4 @@
+
+  	1 	
+
++
+
+1 	2 	
+
+ /*
+
+2 	3 	
+
+  * Copyright (C) 2011 The Android Open Source Project
+
+3 	4 	
+
+  *
+
+	
+
+@@ -22,4 +23,9 @@
+
+22 	23 	
+
+     static final int ESCAPE_VELOCITY = 100; // speed of item required to "curate" it in dp/s
+
+23 	24 	
+
+     public static float ALPHA_FADE_START = 0.8f; // fraction of thumbnail width where fade starts
+
+24 	25 	
+
+     static final float ALPHA_FADE_END = 0.5f; // fraction of thumbnail width beyond which alpha->0
+
+  	26 	
+
++    public static final int CLEAR_ALL_BUTTON_OFF = 0;
+
+  	27 	
+
++    public static final int CLEAR_ALL_BUTTON_TOP_LEFT = 1;
+
+  	28 	
+
++    public static final int CLEAR_ALL_BUTTON_TOP_RIGHT = 2;
+
+  	29 	
+
++    public static final int CLEAR_ALL_BUTTON_BOTTOM_LEFT = 3;
+
+  	30 	
+
++    public static final int CLEAR_ALL_BUTTON_BOTTOM_RIGHT = 4;
+
+25 	31 	
+
+ }
+
+19  packages/SystemUI/src/com/android/systemui/recent/RecentsHorizontalScrollView.java
+	
+
+@@ -22,6 +22,7 @@
+
+22 	22 	
+
+ import android.database.DataSetObserver;
+
+23 	23 	
+
+ import android.graphics.Canvas;
+
+24 	24 	
+
+ import android.graphics.Rect;
+
+  	25 	
+
++import android.os.Handler;
+
+25 	26 	
+
+ import android.util.AttributeSet;
+
+26 	27 	
+
+ import android.util.DisplayMetrics;
+
+27 	28 	
+
+ import android.util.FloatMath;
+
+	
+
+@@ -178,6 +179,24 @@ public void removeViewInLayout(final View view) {
+
+178 	179 	
+
+         dismissChild(view);
+
+179 	180 	
+
+     }
+
+180 	181 	
+
+ 
+
+  	182 	
+
++    @Override
+
+  	183 	
+
++    public void removeAllViewsInLayout() {
+
+  	184 	
+
++        int count = mLinearLayout.getChildCount();
+
+  	185 	
+
++        int scrollX = getScrollX();
+
+  	186 	
+
++        for (int i = 0, delayCounter = 0; i < count; i++) {
+
+  	187 	
+
++            final View child = mLinearLayout.getChildAt(i);
+
+  	188 	
+
++            if (child.getRight() > scrollX) {
+
+  	189 	
+
++                delayCounter++;
+
+  	190 	
+
++            }
+
+  	191 	
+
++            postDelayed(new Runnable() {
+
+  	192 	
+
++                @Override
+
+  	193 	
+
++                public void run() {
+
+  	194 	
+
++                    dismissChild(child);
+
+  	195 	
+
++                }
+
+  	196 	
+
++            }, delayCounter * 150);
+
+  	197 	
+
++        }
+
+  	198 	
+
++    }
+
+  	199 	
+
++
+
+181 	200 	
+
+     public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+182 	201 	
+
+         if (DEBUG) Log.v(TAG, "onInterceptTouchEvent()");
+
+183 	202 	
+
+         return mSwipeHelper.onInterceptTouchEvent(ev) ||
+
+	
+65  packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java
+	
+
+@@ -48,6 +48,7 @@
+
+48 	48 	
+
+ import android.provider.Settings;
+
+49 	49 	
+
+ import android.util.AttributeSet;
+
+50 	50 	
+
+ import android.util.Log;
+
+  	51 	
+
++import android.view.Gravity;
+
+51 	52 	
+
+ import android.view.LayoutInflater;
+
+52 	53 	
+
+ import android.view.MenuItem;
+
+53 	54 	
+
+ import android.view.MotionEvent;
+
+	
+
+@@ -73,6 +74,8 @@
+
+73 	74 	
+
+ import com.android.systemui.statusbar.StatusBarPanel;
+
+74 	75 	
+
+ import com.android.systemui.statusbar.phone.PhoneStatusBar;
+
+75 	76 	
+
+ 
+
+  	77 	
+
++import java.io.OutputStreamWriter;
+
+  	78 	
+
++import java.lang.Runtime;
+
+76 	79 	
+
+ import java.util.ArrayList;
+
+77 	80 	
+
+ 
+
+78 	81 	
+
+ public class RecentsPanelView extends FrameLayout implements OnItemClickListener, RecentsCallback,
+
+	
+
+@@ -91,6 +94,7 @@
+
+91 	94 	
+
+     private boolean mWaitingForWindowAnimation;
+
+92 	95 	
+
+     private long mWindowAnimationStartTime;
+
+93 	96 	
+
+     private boolean mCallUiHiddenBeforeNextReload;
+
+  	97 	
+
++    private boolean noApps;
+
+94 	98 	
+
+ 
+
+95 	99 	
+
+     private RecentTasksLoader mRecentTasksLoader;
+
+96 	100 	
+
+     private ArrayList<TaskDescription> mRecentTaskDescriptions;
+
+	
+
+@@ -99,6 +103,7 @@
+
+99 	103 	
+
+     private boolean mFitThumbnailToXY;
+
+100 	104 	
+
+     private int mRecentItemLayoutId;
+
+101 	105 	
+
+     private boolean mHighEndGfx;
+
+  	106 	
+
++    private ImageView mClearRecents;
+
+102 	107 	
+
+ 
+
+103 	108 	
+
+     public static interface RecentsScrollView {
+
+104 	109 	
+
+         public int numItemsInOneScreenful();
+
+	
+
+@@ -108,6 +113,7 @@
+
+108 	113 	
+
+         public View findViewForTask(int persistentTaskId);
+
+109 	114 	
+
+         public void drawFadedEdges(Canvas c, int left, int right, int top, int bottom);
+
+110 	115 	
+
+         public void setOnScrollListener(Runnable listener);
+
+  	116 	
+
++        public void removeAllViewsInLayout();
+
+111 	117 	
+
+     }
+
+112 	118 	
+
+ 
+
+113 	119 	
+
+     private final class OnLongClickDelegate implements View.OnLongClickListener {
+
+	
+
+@@ -343,11 +349,11 @@ private void showImpl(boolean show) {
+
+343 	349 	
+
+ 
+
+344 	350 	
+
+         if (show) {
+
+345 	351 	
+
+             // if there are no apps, bring up a "No recent apps" message
+
+346 	  	
+
+-            boolean noApps = mRecentTaskDescriptions != null
+
+  	352 	
+
++            noApps = mRecentTaskDescriptions != null
+
+347 	353 	
+
+                     && (mRecentTaskDescriptions.size() == 0);
+
+348 	354 	
+
+             mRecentsNoApps.setAlpha(1f);
+
+349 	355 	
+
+             mRecentsNoApps.setVisibility(noApps ? View.VISIBLE : View.INVISIBLE);
+
+350 	  	
+
+-
+
+  	356 	
+
++            updateClearButton();
+
+351 	357 	
+
+             onAnimationEnd(null);
+
+352 	358 	
+
+             setFocusable(true);
+
+353 	359 	
+
+             setFocusableInTouchMode(true);
+
+	
+
+@@ -362,6 +368,34 @@ private void showImpl(boolean show) {
+
+362 	368 	
+
+         }
+
+363 	369 	
+
+     }
+
+364 	370 	
+
+ 
+
+  	371 	
+
++    private void updateClearButton() {
+
+  	372 	
+
++        int clearAllButton = Settings.System.getInt(mContext.getContentResolver(),
+
+  	373 	
+
++                Settings.System.CLEAR_RECENTS_BUTTON, Constants.CLEAR_ALL_BUTTON_BOTTOM_RIGHT);
+
+  	374 	
+
++
+
+  	375 	
+
++        if (clearAllButton != Constants.CLEAR_ALL_BUTTON_OFF) {
+
+  	376 	
+
++            mClearRecents.setVisibility(noApps ? View.GONE : View.VISIBLE);
+
+  	377 	
+
++            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams)mClearRecents.getLayoutParams();
+
+  	378 	
+
++             switch (clearAllButton) {
+
+  	379 	
+
++                case Constants.CLEAR_ALL_BUTTON_TOP_LEFT:
+
+  	380 	
+
++                    layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+
+  	381 	
+
++                    break;
+
+  	382 	
+
++                case Constants.CLEAR_ALL_BUTTON_TOP_RIGHT:
+
+  	383 	
+
++                    layoutParams.gravity = Gravity.TOP | Gravity.RIGHT;
+
+  	384 	
+
++                    break;
+
+  	385 	
+
++                case Constants.CLEAR_ALL_BUTTON_BOTTOM_LEFT:
+
+  	386 	
+
++                    layoutParams.gravity = Gravity.BOTTOM | Gravity.LEFT;
+
+  	387 	
+
++                    break;
+
+  	388 	
+
++                case Constants.CLEAR_ALL_BUTTON_BOTTOM_RIGHT:
+
+  	389 	
+
++                default:
+
+  	390 	
+
++                    layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+
+  	391 	
+
++                    break;
+
+  	392 	
+
++            }
+
+  	393 	
+
++            mClearRecents.setLayoutParams(layoutParams);
+
+  	394 	
+
++        } else {
+
+  	395 	
+
++            mClearRecents.setVisibility(View.GONE);
+
+  	396 	
+
++        }
+
+  	397 	
+
++    }
+
+  	398 	
+
++
+
+365 	399 	
+
+     protected void onAttachedToWindow () {
+
+366 	400 	
+
+         super.onAttachedToWindow();
+
+367 	401 	
+
+         final ViewRootImpl root = getViewRootImpl();
+
+	
+
+@@ -454,6 +488,33 @@ public void run() {
+
+454 	488 	
+
+         mRecentsScrim = findViewById(R.id.recents_bg_protect);
+
+455 	489 	
+
+         mRecentsNoApps = findViewById(R.id.recents_no_apps);
+
+456 	490 	
+
+ 
+
+  	491 	
+
++        mClearRecents = (ImageView) findViewById(R.id.recents_clear);
+
+  	492 	
+
++        if (mClearRecents != null){
+
+  	493 	
+
++            mClearRecents.setOnClickListener(new OnClickListener() {
+
+  	494 	
+
++                @Override
+
+  	495 	
+
++                public void onClick(View v) {
+
+  	496 	
+
++                    mRecentsContainer.removeAllViewsInLayout();
+
+  	497 	
+
++                }
+
+  	498 	
+
++            });
+
+  	499 	
+
++            mClearRecents.setOnLongClickListener(new OnLongClickListener() {
+
+  	500 	
+
++                @Override
+
+  	501 	
+
++                public boolean onLongClick(View v) {
+
+  	502 	
+
++                    mRecentsContainer.removeAllViewsInLayout();
+
+  	503 	
+
++                    try {
+
+  	504 	
+
++                        ProcessBuilder pb = new ProcessBuilder("su", "-c", "/system/bin/sh");
+
+  	505 	
+
++                        OutputStreamWriter osw = new OutputStreamWriter(pb.start().getOutputStream());
+
+  	506 	
+
++                        osw.write("sync" + "\n" + "echo 3 > /proc/sys/vm/drop_caches" + "\n");
+
+  	507 	
+
++                        osw.write("\nexit\n");
+
+  	508 	
+
++                        osw.flush();
+
+  	509 	
+
++                        osw.close();
+
+  	510 	
+
++                    } catch (Exception e) {
+
+  	511 	
+
++                        Log.d(TAG, "Flush caches failed!");
+
+  	512 	
+
++                    }
+
+  	513 	
+
++                    return true;
+
+  	514 	
+
++                }
+
+  	515 	
+
++            });
+
+  	516 	
+
++        }
+
+  	517 	
+
++
+
+457 	518 	
+
+         if (mRecentsScrim != null) {
+
+458 	519 	
+
+             mHighEndGfx = ActivityManager.isHighEndGfx();
+
+459 	520 	
+
+             if (!mHighEndGfx) {
+
+	
+19  packages/SystemUI/src/com/android/systemui/recent/RecentsVerticalScrollView.java
+
+@@ -21,6 +21,7 @@
+
+ import android.content.res.Configuration;
+
+ import android.database.DataSetObserver;
+
+ import android.graphics.Canvas;
+
++import android.os.Handler;
+
+ import android.util.AttributeSet;
+
+ import android.util.DisplayMetrics;
+
+ import android.util.FloatMath;
+
+@@ -185,6 +186,24 @@ public void removeViewInLayout(final View view) {
+
+         dismissChild(view);
+
+     }
+
+ 
+
++    @Override
+
++    public void removeAllViewsInLayout() {
+
++        int count = mLinearLayout.getChildCount();
+
++        int scrollY = getScrollY();
+
++        for (int i = 0, delayCounter = 0; i < count; i++) {
+
++            final View child = mLinearLayout.getChildAt(i);
+
++            if (child.getBottom() > scrollY) {
+
++                delayCounter++;
+
++            }
+
++            postDelayed(new Runnable() {
+
++                @Override
+
++                public void run() {
+
++                    dismissChild(child);
+
++                }
+
++            }, delayCounter * 150);
+
++        }
+
++    }
+
++
+
+     public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+         if (DEBUG) Log.v(TAG, "onInterceptTouchEvent()");
+
+         return mSwipeHelper.onInterceptTouchEvent(ev) ||
